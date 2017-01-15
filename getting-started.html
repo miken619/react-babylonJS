@@ -1,0 +1,152 @@
+<!doctype html>
+<html class="no-js" lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Getting Started ∙ React BabylonJS</title>
+  <meta name="description" content="React BabylonJS contains component and middleware to integrate BabylonJS with React">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" href="/react-babylonJS/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700italic">
+  <link rel="stylesheet" href="/react-babylonJS/main.css">
+</head>
+<body>
+  <div class="header">
+  <div class="container">
+    <a class="header__logo" href="/react-babylonJS/">
+      React BabylonJS
+    </a>
+        <span class="header__author">
+          made with &nbsp;♥
+        </span>
+    
+  </div>
+</div>
+
+
+  <div class="content">
+    <div class="content-left">
+      <div class="nav">
+  <h3 class="nav__title">Quick Start</h3>
+  <ul class="nav__menu">
+    <li class="nav__menu-item">
+      <a class="nav__link" href="/react-babylonJS/">Overview</a>
+    </li>
+    <li class="nav__menu-item nav__menu-item--selected">
+      <a class="nav__link" href="/react-babylonJS/getting-started">Getting Started</a>
+    </li>
+  </ul>
+</div>
+
+    </div>
+    <div class="content-right">
+      <h1>Getting Started</h1>
+<p>Install the npm module into your project.</p>
+<h3>How to Install</h3>
+<pre><code class="language-sh">$ cd &lt;your-project-dir&gt;
+$ npm install react-babylonJS --save
+</code></pre>
+<pre><code class="language-javascript">// If you import Scene from BabylonJS then make sure to alias one of them.
+import { Scene, registerHandler, removeHandler } from 'react-babylonjs'
+
+export default class Quarto extends Component {
+    
+  constructor(props) {
+    super(props)
+
+    // methods used by Scene (more will be added soon and documentation)
+    this.onSceneMount = this.onSceneMount.bind(this)
+    this.onMeshPicked = this.onMeshPicked.bind(this)
+
+    // these action creators are exported from
+    this.debugOn = props.debugOn
+    this.debugOff = props.debugOff
+    this.debugEnabled = false;
+  }
+
+  toggleDebug() {
+      if (this.debugEnabled) {
+          this.debugOff()
+      } else {
+          this.debugOn()
+      }
+      this.debugEnabled = !this.debugEnabled
+  }
+
+  onMeshPicked(mesh, scene) {
+    // This will be called when a mesh is picked in the canvas
+  }
+
+  onSceneMount(e) {
+        const { canvas, scene, engine} = e
+
+        // Scene to build your environment, Canvas you need to attach your camera.       
+        var camera = new ArcRotateCamera(&quot;Camera&quot;, 0, 1.05, 280, Vector3.Zero(), scene)
+        camera.attachControl(canvas)
+
+        // if you want to use a shader, pass in the directory to the component.
+        var shader = new BABYLON.ShaderMaterial(&quot;gradient&quot;, scene, &quot;gradient&quot;, {})
+
+        engine.runRenderLoop(() =&gt; {
+            if (scene) {
+                scene.render();
+            }
+        });
+  }
+
+  componentDidMount () {
+
+    // you can add listeners to redux actions - they are intercepted by the middleware
+    let handlers = {
+        ['YOUR_ACTION_TYPE']: (action) =&gt; {
+            // run any code here - ie: set state that you monitor in your scene.registerBeforeRender(()=&gt; { ... })
+            // change properties or animate meshes.
+            return true
+        },
+        ['YOUR_ACTION_TYPE2']: (action) =&gt; {
+            return true // indicates to middleware that it was handled
+        }
+    }
+
+    this.actionHandler = (action) =&gt; {
+        let handler = handlers[action.type]
+        if (handler == undefined) {
+            console.log(`no handler defined in babylonJS scene for ${action.type}`)
+        } else {
+            return handler(action)
+        }
+    }
+
+    registerHandler(this.actionHandler)
+  }
+
+  componentWillUnmount() {
+    this.scene = null
+    removeHandler(this.actionHandler)
+  }
+
+  render() {
+ 
+    const { appState } = this.props
+
+    return (
+      &lt;div&gt;
+        &lt;Scene
+            onSceneMount={this.onSceneMount} 
+            onMeshPicked={this.onMeshPicked}
+            shadersRepository={'/shaders/'}
+            visible={appState.show3D} /&gt;
+     
+        &lt;Button onClick={this.toggleDebug}&gt;show/hide BabylonJS debug window&lt;/Button&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+
+</code></pre>
+
+    </div>
+  </div>
+  <script src="/react-babylonJS/main.js"></script>
+</body>
+</html>
